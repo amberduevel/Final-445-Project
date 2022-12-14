@@ -1,46 +1,56 @@
----
-title: "Stat 445 Final"
-author: "Amber Duevel"
-date: "12/13/2022"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ```{r}
-library(tidyverse)
+library(dplyr)
 library(readxl)
+library(tidyverse)
 ```
 
 ```{r}
-MIX = read_xlsx("MIX_model_original_data.xlsx")
-MC = read_xlsx("MC_model_original_data.xlsx")
+MIX<-read_xlsx("MIX_model_original_data.xlsx")
+MC<-read_xlsx("MC_model_original_data.xlsx")
+```
 
-#Notes for MC:
-#Dependent Variable: ELISA_microcystin_ugL
+```{r Dependent Variables for MC}
+#Dependent Variable: ELISA_microcystin_ugL 
 #Dependent Variable: ELISA_MC+ANA+SXT
+```
 
+```{r}
+MC$Year = format(as.Date(MC$DateTime, format = "%Y-%m-%d"), "%Y")
 MC_new = MC[!is.na(MC$'ELISA_MC+ANA+SXT'),]
 MC_clean = MC_new %>% select_if(~ !any(is.na(.)))
 MC_clean$Year = format(as.Date(MC_clean$DateTime, format = "%Y-%m-%d"), "%Y")
+MC_clean = MC_clean %>% group_by(Year, siteID)
 
+MIX$Year = format(as.Date(MIX$DateTime, format = "%Y-%m-%d"), "%Y")
+MIX = MIX %>% group_by(Year, siteID)
 MIX_new = MIX[!is.na(MIX$'ELISA_MC+ANA+SXT'),]
 MIX_clean = MIX_new %>% select_if(~ !any(is.na(.)))
 MIX_clean$Year = format(as.Date(MIX_clean$DateTime, format = "%Y-%m-%d"), "%Y")
 
-MC_clean = MC_clean %>% group_by(Year, siteID)
-MC_clean %>% summarise(min(WTemp_C))
-
-MIX$Year = format(as.Date(MIX$DateTime, format = "%Y-%m-%d"), "%Y")
-
-MIX = MIX %>% group_by(Year, siteID)
-MIX %>% summarise(median(WTemp_C, na.rm = TRUE))
 ```
-
+##Creating Table 2
+The report was unclear about how they calculated the minimum, maximum, and median for each site ID by year. The report stated that their sample size was n=41 for each site ID. That means they worked with the original data collected. If we did this a lot of the statistics would come back as NAs due to a significant amount of NAs in the data collected. We decided to work with the original data but calculate the statistics without the NAs in order to produce the table. This is why our numbers don't match the table in the report.
 ```{r}
-MC_clean %>% group_by(Year, siteID) 
-Table3 = MC_clean %>% summarise(min(ELISA_anatoxin_ugL), max(ELISA_anatoxin_ugL), median(ELISA_anatoxin_ugL), min(ELISA_microcystin_ugL), max(ELISA_microcystin_ugL), median(ELISA_microcystin_ugL), min(ELISA_saxitoxin_ugL), max(ELISA_saxitoxin_ugL), median(ELISA_saxitoxin_ugL))
-view(Table3)
+MC <- MC %>% group_by(Year, siteID)
+Table_1 <- MC %>% summarise(max_pH=max(pH, na.rm=TRUE), min_pH=min(pH, na.rm=TRUE), median_pH=median(pH, na.rm=TRUE)) 
+Table_2 <- MC %>% summarise(max_WT=max(WTemp_C, na.rm=TRUE), min_WT=min(WTemp_C, na.rm=TRUE), median_WT=median(WTemp_C, na.rm=TRUE)) 
+Table_3 <- MC %>% summarise(max_D=max(Secchi_meters, na.rm=TRUE), min_D=min(Secchi_meters, na.rm=TRUE), median_D=median(Secchi_meters, na.rm=TRUE)) 
+Table_4 <- MC %>% summarise(max_SC=max(SpCond_uScm, na.rm=TRUE), min_SC=min(SpCond_uScm, na.rm=TRUE), median_SC=median(SpCond_uScm, na.rm=TRUE)) 
+Table_5 <- MC %>% summarise(max_NH3=max(Ammonia_mgL_LAG, na.rm=TRUE), min_NH3=min(Ammonia_mgL_LAG, na.rm=TRUE), median_NH3=median(Ammonia_mgL_LAG, na.rm=TRUE)) 
+Table_6 <- MC %>% summarise(max_NN=max(Nox_mgL_LAG, na.rm=TRUE), min_NN=min(Nox_mgL_LAG, na.rm=TRUE), median_NN=median(Nox_mgL_LAG, na.rm=TRUE)) 
+Table_7 <- MC %>% summarise(max_OP=max(OrthoP_mgL_LAG, na.rm=TRUE), min_OP=min(OrthoP_mgL_LAG, na.rm=TRUE), median_OP=median(OrthoP_mgL_LAG, na.rm=TRUE)) 
+Table_8 <- MC %>% summarise(max_TP=max(TP_mgL_LAG, na.rm=TRUE), min_TP=min(TP_mgL_LAG, na.rm=TRUE), median_TP=median(TP_mgL_LAG, na.rm=TRUE)) 
+Table_9 <- MC %>% summarise(max_TN=max(TN_mgL_LAG, na.rm=TRUE), min_TN=min(TN_mgL_LAG, na.rm=TRUE), median_TN=median(TN_mgL_LAG, na.rm=TRUE)) 
+Table_10 <- MC %>% summarise(max_NiP=max(NtoP_ratio_LAG, na.rm=TRUE), min_NiP=min(NtoP_ratio_LAG, na.rm=TRUE), median_NiP=median(NtoP_ratio_LAG, na.rm=TRUE))
+
+Table <- merge(Table_1,Table_2, by=c("siteID", "Year"))
+Table <- merge(Table,Table_3, by=c("siteID", "Year"))
+Table <- merge(Table,Table_4, by=c("siteID", "Year"))
+Table <- merge(Table,Table_5, by=c("siteID", "Year"))
+Table <- merge(Table,Table_6, by=c("siteID", "Year"))
+Table <- merge(Table,Table_7, by=c("siteID", "Year"))
+Table <- merge(Table,Table_8, by=c("siteID", "Year"))
+Table <- merge(Table,Table_9, by=c("siteID", "Year"))
+Table <- merge(Table,Table_10, by=c("siteID", "Year"))
+
 ```
