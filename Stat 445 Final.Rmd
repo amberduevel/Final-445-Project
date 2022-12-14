@@ -54,3 +54,10 @@ Table <- merge(Table,Table_9, by=c("siteID", "Year"))
 Table <- merge(Table,Table_10, by=c("siteID", "Year"))
 
 ```
+##Creating Table 3
+
+```{r}
+MC_clean %>% group_by(Year, siteID) 
+Table3 = MC_clean %>% summarise(min_Anatoxin=min(ELISA_anatoxin_ugL), max_Anatoxin=max(ELISA_anatoxin_ugL), med_Anatoxin=median(ELISA_anatoxin_ugL), min_Microcystin=min(ELISA_microcystin_ugL), max_Microcystin=max(ELISA_microcystin_ugL), med_Microcystin=median(ELISA_microcystin_ugL), min_Saxitoxin=min(ELISA_saxitoxin_ugL), max_Saxitoxin=max(ELISA_saxitoxin_ugL), med_Saxitoxin=median(ELISA_saxitoxin_ugL))
+
+```
