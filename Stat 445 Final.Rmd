@@ -9,22 +9,38 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(tidyverse)
+library(readxl)
 ```
 
-## Including Plots
+```{r}
+MIX = read_xlsx("MIX_model_original_data.xlsx")
+MC = read_xlsx("MC_model_original_data.xlsx")
 
-You can also embed plots, for example:
+#Notes for MC:
+#Dependent Variable: ELISA_microcystin_ugL
+#Dependent Variable: ELISA_MC+ANA+SXT
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+MC_new = MC[!is.na(MC$'ELISA_MC+ANA+SXT'),]
+MC_clean = MC_new %>% select_if(~ !any(is.na(.)))
+MC_clean$Year = format(as.Date(MC_clean$DateTime, format = "%Y-%m-%d"), "%Y")
+
+MIX_new = MIX[!is.na(MIX$'ELISA_MC+ANA+SXT'),]
+MIX_clean = MIX_new %>% select_if(~ !any(is.na(.)))
+MIX_clean$Year = format(as.Date(MIX_clean$DateTime, format = "%Y-%m-%d"), "%Y")
+
+MC_clean = MC_clean %>% group_by(Year, siteID)
+MC_clean %>% summarise(min(WTemp_C))
+
+MIX$Year = format(as.Date(MIX$DateTime, format = "%Y-%m-%d"), "%Y")
+
+MIX = MIX %>% group_by(Year, siteID)
+MIX %>% summarise(median(WTemp_C, na.rm = TRUE))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+MC_clean %>% group_by(Year, siteID) 
+Table3 = MC_clean %>% summarise(min(ELISA_anatoxin_ugL), max(ELISA_anatoxin_ugL), median(ELISA_anatoxin_ugL), min(ELISA_microcystin_ugL), max(ELISA_microcystin_ugL), median(ELISA_microcystin_ugL), min(ELISA_saxitoxin_ugL), max(ELISA_saxitoxin_ugL), median(ELISA_saxitoxin_ugL))
+view(Table3)
+```
