@@ -89,3 +89,14 @@ summary(model2)
 vif(model2)
 #brings it down to like 25 variables
 ```
+
+```{r}
+model3_MIX = lm(ELISA_MC_ANA_SXT ~ WTemp_C + Secchi_meters + pH + SpCond_uScm + TP_mgL_LAG + NtoP_ratio_LAG + Micro_mcyE_cp100mL_LAG + Plank_mcyE_cp100mL_LAG + anaC_cp100mL_LAG + sxtA_cp100mL_LAG + WindSpInst_mph + WindDirInst_deg + WindSpAnt24_mph + WindDirAnt24_deg + RainD_1 + Sum14d_precip + BarPressInst_inhg + changeBP + LkLevelChg14day + LkLevelChg24_Ave7day + LkLevelChg24_Ave7dayABS + LkLevel_dev_springave + PAR_1dSUM, data = MC_clean2)
+summary(model3_MIX)
+
+vif(model3_MIX)
+
+MC_clean3 = MC_clean2 %>% select("ELISA_microcystin_ugL", "WTemp_C", "Secchi_meters", "pH", "SpCond_uScm", "TP_mgL_LAG", "NtoP_ratio_LAG", "Micro_mcyE_cp100mL_LAG", "Plank_mcyE_cp100mL_LAG", "anaC_cp100mL_LAG", "sxtA_cp100mL_LAG", "WindSpInst_mph", "WindDirInst_deg",  "WindSpAnt24_mph", "WindDirAnt24_deg", "Rain48W_in", "Sum14d_precip", "BarPressInst_inhg", "changeBP", "LkLevelChg14day",  "LkLevelChg24_Ave7day", "LkLevelChg24_Ave7dayABS", "LkLevel_dev_springave", "PAR_1dSUM")
+
+MIX_clean4 = MC_clean2 %>% select("ELISA_MC_ANA_SXT", "WTemp_C", "Secchi_meters", "pH", "SpCond_uScm", "TP_mgL_LAG", "NtoP_ratio_LAG", "Micro_mcyE_cp100mL_LAG", "Plank_mcyE_cp100mL_LAG", "anaC_cp100mL_LAG", "sxtA_cp100mL_LAG", "WindSpInst_mph", "WindDirInst_deg", "WindSpAnt24_mph", "WindDirAnt24_deg", "RainD_1", "Sum14d_precip", "BarPressInst_inhg", "changeBP", "LkLevelChg14day", "LkLevelChg24_Ave7day", "LkLevelChg24_Ave7dayABS", "LkLevel_dev_springave", "PAR_1dSUM")
+```
