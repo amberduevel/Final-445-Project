@@ -170,4 +170,14 @@ summary(final_MIX_model)
 
 AICc(final_MIX_model, return.K = FALSE)
 press(final_MIX_model, as.R2 = FALSE)
+
+print(MC_clean3$ELISA_microcystin_ugL)
+
+pred_MC = predict(final_MC_model, newdata = MC_clean3)
+print(pred_MC)
+
+print(MIX_clean4$ELISA_MC_ANA_SXT)
+
+pred_MIX = predict(final_MIX_model, newdata = MIX_clean4)
+print(pred_MIX)
 ```
