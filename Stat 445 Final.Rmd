@@ -180,4 +180,13 @@ print(MIX_clean4$ELISA_MC_ANA_SXT)
 
 pred_MIX = predict(final_MIX_model, newdata = MIX_clean4)
 print(pred_MIX)
+
+Final_table = data.frame(
+  Model = c("Comprehensive MC", "Comprehensive MIX"), 
+  AICc = c(80.53, 340.13), 
+  PRESS = c(15.1, 2487.38), 
+  R2 = c(0.84, 0.84), 
+  Sensitivity = c(1, 1), 
+  Specificity = c(0.60, 0.95)
+)
 ```
