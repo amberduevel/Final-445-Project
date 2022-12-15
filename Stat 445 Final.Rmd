@@ -102,3 +102,76 @@ MC_clean3 = MC_clean2 %>% select("ELISA_microcystin_ugL", "WTemp_C", "Secchi_met
 
 MIX_clean4 = MC_clean2 %>% select("ELISA_MC_ANA_SXT", "WTemp_C", "Secchi_meters", "pH", "SpCond_uScm", "TP_mgL_LAG", "NtoP_ratio_LAG", "Micro_mcyE_cp100mL_LAG", "Plank_mcyE_cp100mL_LAG", "anaC_cp100mL_LAG", "sxtA_cp100mL_LAG", "WindSpInst_mph", "WindDirInst_deg", "WindSpAnt24_mph", "WindDirAnt24_deg", "RainD_1", "Sum14d_precip", "BarPressInst_inhg", "changeBP", "LkLevelChg14day", "LkLevelChg24_Ave7day", "LkLevelChg24_Ave7dayABS", "LkLevel_dev_springave", "PAR_1dSUM")
 ```
+
+##Variable Selection
+In this section we looked at the article to see what variables they for sure didn't use in their model. We also looked to see if there were any repeating values and removed those variables too. This got us down to 43 variables. We created a model with these 43 variables and ran a VIF test. The article stated that they got rid of any variables that had a VIF value higher than five. This got us to 25 variables. When running the VIF test, we had some variables with really high VIF scores but the article kept those variables in their model. Due to the article being unclear about this we kept those variables in the model even though they had a high VIF value. With the 25 variables we were unable to figure out how they got down to their specific variables so we jumped to the next step.
+
+```{r}
+#The variables that are included in Table 4 include Water temperature(WT) Specific conductance(SC), Total phosphorus(TP), "the plank one"(Plank_mcyE), "the micro one"(Micro_mcyE), Anatoxin(anaC), Saxitoxin(sxtA), Wind direction(WindDir), Lake level for 7 days(LL_7day), Lake level spring average(LL_Spring), Lake level 14 days(LL_14day)
+
+MC_clean2 = MC_clean %>% select(-c("ELISA_anatoxin_ugL", "Ammonia_mgL_LAG", "Nox_mgL_LAG", "Nitrite_mgL_LAG", "Nitrate_mgL_LAG", "OrthoP_mgL_LAG", "SXTx100", "DateTime", "MCx12.5", "siteID", "Year", "Ana_mcyE_cp100mL_LAG", "LkLevelChg7day"))
+
+#Ana_mcYE had 21/50 repeated values
+#LkLevelChg24_Ave7day has perfect colinearity with LkLevelChg7day so took out LkLevelChg7day since its not in the final model
+#took out Rain48W because it was highly correlated with Rain72W
+
+model1 = lm(ELISA_microcystin_ugL ~ WTemp_C + Secchi_meters + pH + SpCond_uScm + TP_mgL_LAG + TN_mgL_LAG + NtoP_ratio_LAG + Micro_mcyE_cp100mL_LAG + Plank_mcyE_cp100mL_LAG + anaC_cp100mL_LAG + sxtA_cp100mL_LAG + WindSpInst_mph + WindDirInst_deg + WindSpAnt24_mph + WindDirAnt24_deg + RainD_1 + RainD_2 + RainD_3 + Rain48W_in + Rain72W_in + Sum7d_precip + Sum14d_precip + BarPressInst_inhg + changeBP + LkLevelChg24_ft + LkLevelChg14day + LkLevelChg24_Ave7day + LkLevelChg24_Ave7dayABS + LkLevel_dev_springave + PAR_1dSUM + PAR_3dAVG + PAR_5dAVG + PAR_7dAVG + PAR_14dAVG + Dis_dm1 + Dis_dm2 + Dis_dm3 + Dis_7dAve + Dis_14dAve + Dis_30dAve, data = MC_clean2)
+summary(model1)
+vif(model1)
+
+#corr_matrix = cor(MC_clean2)
+#corrplot(corr_matrix)
+
+#cor.test(MC_clean2$Rain48W_in, MC_clean2$Dis_30dAve)
+
+#took out Rain72 and RainD1 because of high colinearity
+
+model2_MC = lm(ELISA_microcystin_ugL ~ WTemp_C + Secchi_meters + pH + SpCond_uScm + TP_mgL_LAG + NtoP_ratio_LAG + Micro_mcyE_cp100mL_LAG + Plank_mcyE_cp100mL_LAG + anaC_cp100mL_LAG + sxtA_cp100mL_LAG + WindSpInst_mph + WindDirInst_deg + WindSpAnt24_mph + WindDirAnt24_deg + Rain48W_in + Sum14d_precip + BarPressInst_inhg + changeBP + LkLevelChg14day + LkLevelChg24_Ave7day + LkLevelChg24_Ave7dayABS + LkLevel_dev_springave + PAR_1dSUM, data = MC_clean2)
+
+summary(model2)
+vif(model2)
+
+#brings it down to like 25 variables
+
+MC_clean3 <- MC_clean2 %>% select(c("ELISA_microcystin_ugL", "WTemp_C", "Secchi_meters", "pH", "SpCond_uScm", "TP_mgL_LAG", "NtoP_ratio_LAG", "Micro_mcyE_cp100mL_LAG", "Plank_mcyE_cp100mL_LAG", "anaC_cp100mL_LAG", "sxtA_cp100mL_LAG", "WindSpInst_mph", "WindDirInst_deg", "WindSpAnt24_mph", "WindDirAnt24_deg", "Rain48W_in", "Sum14d_precip", "BarPressInst_inhg", "changeBP", "LkLevelChg14day", "LkLevelChg24_Ave7day", "LkLevelChg24_Ave7dayABS", "LkLevel_dev_springave", "PAR_1dSUM"))
+
+```
+
+##Step Algorithm
+We did a step algorithm of our model with 25 variables. The step algorithm we used was the backward direction one. This got us down to 10 variables in our final model. For the creation of table 4, we were missing 3 variables that they used. We decided to jump to the next step and put in the three missing variables due to the article being unclear here.
+
+```{r}
+colnames(MC_clean2)[4] = "ELISA_MC_ANA_SXT"
+model3_MIX = lm(ELISA_MC_ANA_SXT ~ WTemp_C + Secchi_meters + pH + SpCond_uScm + TP_mgL_LAG + NtoP_ratio_LAG + Micro_mcyE_cp100mL_LAG + Plank_mcyE_cp100mL_LAG + anaC_cp100mL_LAG + sxtA_cp100mL_LAG + WindSpInst_mph + WindDirInst_deg + WindSpAnt24_mph + WindDirAnt24_deg + RainD_1 + Sum14d_precip + BarPressInst_inhg + changeBP + LkLevelChg14day + LkLevelChg24_Ave7day + LkLevelChg24_Ave7dayABS + LkLevel_dev_springave + PAR_1dSUM, data = MC_clean2)
+
+summary(model3_MIX)
+vif(model3_MIX)
+
+MC_clean3 = MC_clean2 %>% select("ELISA_microcystin_ugL", "WTemp_C", "Secchi_meters", "pH", "SpCond_uScm", "TP_mgL_LAG", "NtoP_ratio_LAG", "Micro_mcyE_cp100mL_LAG", "Plank_mcyE_cp100mL_LAG", "anaC_cp100mL_LAG", "sxtA_cp100mL_LAG", "WindSpInst_mph", "WindDirInst_deg",  "WindSpAnt24_mph", "WindDirAnt24_deg", "Rain48W_in", "Sum14d_precip", "BarPressInst_inhg", "changeBP", "LkLevelChg14day",  "LkLevelChg24_Ave7day", "LkLevelChg24_Ave7dayABS", "LkLevel_dev_springave", "PAR_1dSUM")
+
+MIX_clean4 = MC_clean2 %>% select("ELISA_MC_ANA_SXT", "WTemp_C", "Secchi_meters", "pH", "SpCond_uScm", "TP_mgL_LAG", "NtoP_ratio_LAG", "Micro_mcyE_cp100mL_LAG", "Plank_mcyE_cp100mL_LAG", "anaC_cp100mL_LAG", "sxtA_cp100mL_LAG", "WindSpInst_mph", "WindDirInst_deg", "WindSpAnt24_mph", "WindDirAnt24_deg", "RainD_1", "Sum14d_precip", "BarPressInst_inhg", "changeBP", "LkLevelChg14day", "LkLevelChg24_Ave7day", "LkLevelChg24_Ave7dayABS", "LkLevel_dev_springave", "PAR_1dSUM")
+```
+
+```{r}
+step(model2_MC, direction="backward")
+
+model3_MC<-lm(ELISA_microcystin_ugL ~ WTemp_C + SpCond_uScm + TP_mgL_LAG + Micro_mcyE_cp100mL_LAG + Plank_mcyE_cp100mL_LAG + WindDirInst_deg + LkLevelChg14day + LkLevelChg24_Ave7day +  LkLevel_dev_springave, data = MC_clean3)
+
+Table4 = data.frame("Variable_MC"=c("WTemp_C", "SpCond_uScm", "TP_mgL_LAG", "Micro_mcyE_cp100mL_LAG", "Plank_mcyE_cp100mL_LAG", "WindDirInst_deg", "LkLevelChg14day", "LkLevelChg24_Ave7day",  "LkLevel_dev_springave"))
+
+step(model3_MC, direction="backward")
+
+model4_MIX <-lm(ELISA_MC_ANA_SXT~ WTemp_C + Secchi_meters + pH + SpCond_uScm + TP_mgL_LAG + NtoP_ratio_LAG + Micro_mcyE_cp100mL_LAG + Plank_mcyE_cp100mL_LAG + anaC_cp100mL_LAG + sxtA_cp100mL_LAG + WindSpInst_mph + WindDirInst_deg + WindSpAnt24_mph + WindDirAnt24_deg + RainD_1 + Sum14d_precip + BarPressInst_inhg + changeBP + LkLevelChg14day + LkLevelChg24_Ave7day + LkLevelChg24_Ave7dayABS + LkLevel_dev_springave + PAR_1dSUM, data=MIX_clean4)
+
+step(model4_MIX, direction="backward")
+
+model5_MIX <- lm(ELISA_MC_ANA_SXT~WTemp_C + SpCond_uScm + TP_mgL_LAG + Micro_mcyE_cp100mL_LAG + Plank_mcyE_cp100mL_LAG + anaC_cp100mL_LAG + sxtA_cp100mL_LAG + WindDirInst_deg + LkLevelChg14day + LkLevelChg24_Ave7day + LkLevel_dev_springave, data=MIX_clean4)
+
+step(model5_MIX, direction="backward")
+
+Table5 = data.frame("Variable_MIX"=c("WTemp_C", "SpCond_uScm", "TP_mgL_LAG", "Micro_mcyE_cp100mL_LAG", "Plank_mcyE_cp100mL_LAG", "anaC_cp100mL_LAG", "sxtA_cp100mL_LAG", "WindDirInst_deg", "LkLevelChg14day", "LkLevelChg24_Ave7day",  "LkLevel_dev_springave"))
+
+```
+
+##Final Variables
+We did the step backwards algorithm and got a multiple linear regression model with 4 variables. The article uses 6 variables so our model was missing WT and WindDir. It makes sense that these weren't in our model because when we were originally running the VIF test those two had high VIF values. We didn't understand why they were in the final model but We added these two variables to our model. 
