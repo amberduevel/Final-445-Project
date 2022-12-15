@@ -71,6 +71,8 @@ MC_clean2 = MC_clean %>% select(-c("ELISA_anatoxin_ugL", "Ammonia_mgL_LAG", "Nox
 #LkLevelChg24_Ave7day has perfect colinearity with LkLevelChg7day so took out LkLevelChg7day since its not in the final model
 #took out Rain48W because it was highly correlated with Rain72W
 
+colnames(MC_clean2)[2] = "ELISA_MC_ANA_SXT"
+
 model1 = lm(ELISA_microcystin_ugL ~ WTemp_C + Secchi_meters + pH + SpCond_uScm + TP_mgL_LAG + TN_mgL_LAG + NtoP_ratio_LAG + Micro_mcyE_cp100mL_LAG + Plank_mcyE_cp100mL_LAG + anaC_cp100mL_LAG + sxtA_cp100mL_LAG + WindSpInst_mph + WindDirInst_deg + WindSpAnt24_mph + WindDirAnt24_deg + RainD_1 + RainD_2 + RainD_3 + Rain48W_in + Rain72W_in + Sum7d_precip + Sum14d_precip + BarPressInst_inhg + changeBP + LkLevelChg24_ft + LkLevelChg14day + LkLevelChg24_Ave7day + LkLevelChg24_Ave7dayABS + LkLevel_dev_springave + PAR_1dSUM + PAR_3dAVG + PAR_5dAVG + PAR_7dAVG + PAR_14dAVG + Dis_dm1 + Dis_dm2 + Dis_dm3 + Dis_7dAve + Dis_14dAve + Dis_30dAve, data = MC_clean2)
 summary(model1)
 
