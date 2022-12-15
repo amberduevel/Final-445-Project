@@ -10,6 +10,10 @@ library(readxl)
 library(tidyverse)
 library(car)
 library(GGally)
+library(AICcmodavg)
+library(asbio)
+
+library(lattice)
 ```
 
 ```{r}
@@ -68,7 +72,6 @@ The article was unclear about what values they used in order to calculate the st
 ```{r}
 MC_Table3<- MC_clean %>% group_by(Year, siteID)
 Table3 = MC_Table3 %>% summarise(min_Anatoxin=min(ELISA_anatoxin_ugL), max_Anatoxin=max(ELISA_anatoxin_ugL), med_Anatoxin=median(ELISA_anatoxin_ugL), min_Microcystin=min(ELISA_microcystin_ugL), max_Microcystin=max(ELISA_microcystin_ugL), med_Microcystin=median(ELISA_microcystin_ugL), min_Saxitoxin=min(ELISA_saxitoxin_ugL), max_Saxitoxin=max(ELISA_saxitoxin_ugL), med_Saxitoxin=median(ELISA_saxitoxin_ugL))
-view(Table3)
 
 ```
 
@@ -145,6 +148,7 @@ Table5 = data.frame("Variable_MIX"=c("WTemp_C", "SpCond_uScm", "TP_mgL_LAG", "Mi
 ##Final Variables
 We did the step backwards algorithm and got a multiple linear regression model with 4 variables. The article uses 6 variables so our model was missing WT and WindDir. It makes sense that these weren't in our model because when we were originally running the VIF test those two had high VIF values. We didn't understand why they were in the final model but We added these two variables to our model. 
 
+
 ```{r}
 MIX_clean4$WindDirInst_deg = MIX_clean4$WindDirInst_deg+0.0001
 
@@ -157,7 +161,6 @@ summary(final_MC_model)
 
 AICc(final_MC_model, return.K = FALSE)
 press(final_MC_model, as.R2 = FALSE)
-sensitivity(final_MC_model)
 
 t_ana = (MIX_clean4$anaC_cp100mL_LAG)^-1
 print(t_ana)
@@ -172,7 +175,6 @@ AICc(final_MIX_model, return.K = FALSE)
 press(final_MIX_model, as.R2 = FALSE)
 
 print(MC_clean3$ELISA_microcystin_ugL)
-
 pred_MC = predict(final_MC_model, newdata = MC_clean3)
 print(pred_MC)
 
@@ -190,3 +192,4 @@ Final_table = data.frame(
   Specificity = c(0.60, 0.95)
 )
 ```
+
