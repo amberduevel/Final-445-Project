@@ -144,3 +144,30 @@ Table5 = data.frame("Variable_MIX"=c("WTemp_C", "SpCond_uScm", "TP_mgL_LAG", "Mi
 
 ##Final Variables
 We did the step backwards algorithm and got a multiple linear regression model with 4 variables. The article uses 6 variables so our model was missing WT and WindDir. It makes sense that these weren't in our model because when we were originally running the VIF test those two had high VIF values. We didn't understand why they were in the final model but We added these two variables to our model. 
+
+```{r}
+MIX_clean4$WindDirInst_deg = MIX_clean4$WindDirInst_deg+0.0001
+
+t_WTemp_C = (MC_clean3$WTemp_C)^-1
+t_TP = (MC_clean3$TP_mgL_LAG)^2
+t_Micro = (MC_clean3$Micro_mcyE_cp100mL_LAG)^(1/2)
+t_Plank = (MC_clean3$Plank_mcyE_cp100mL_LAG)^(1/4)
+final_MC_model = lm(ELISA_microcystin_ugL ~ t_WTemp_C + t_TP + t_Micro + t_Plank + WindDirInst_deg + LkLevelChg24_Ave7day, data = MC_clean3)
+summary(final_MC_model)
+
+AICc(final_MC_model, return.K = FALSE)
+press(final_MC_model, as.R2 = FALSE)
+sensitivity(final_MC_model)
+
+t_ana = (MIX_clean4$anaC_cp100mL_LAG)^-1
+print(t_ana)
+t_sxt = sqrt(MIX_clean4$sxtA_cp100mL_LAG)
+print(t_sxt)
+t_LL = (MIX_clean4$LkLevelChg14day)^-1
+print(t_LL)
+final_MIX_model = lm(ELISA_MC_ANA_SXT ~ t_TP + t_Plank + t_ana + t_sxt + WindDirInst_deg + t_LL, data = MIX_clean4)
+summary(final_MIX_model)
+
+AICc(final_MIX_model, return.K = FALSE)
+press(final_MIX_model, as.R2 = FALSE)
+```
